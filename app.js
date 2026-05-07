@@ -22,7 +22,7 @@ $$('.nav-item').forEach(n=>n.addEventListener('click',e=>{
     if(p==='dashboard')refreshDash();if(p==='report')refreshReport();
     if(p==='personnel')refreshPers();if(p==='history')refreshHist();
     if(p==='blood')refreshBlood();if(p==='telegram')loadTG();
-    if(innerWidth<=768)$('#sidebar').classList.remove('open');
+    if(innerWidth<=768){$('#sidebar').classList.remove('open');const ov=$('#sidebarOverlay');if(ov)ov.classList.remove('active');}
 }));
 
 // === DateTime ===
@@ -339,7 +339,12 @@ $$('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o
 $('#reportDetailClose').addEventListener('click',()=>$('#reportDetailModal').classList.remove('active'));
 $('#btnCloseDetail').addEventListener('click',()=>$('#reportDetailModal').classList.remove('active'));
 $('#btnResendTelegram').addEventListener('click',()=>{if(curReportId){const r=reports.find(x=>x.id===curReportId);if(r)sendReportTG(r);$('#reportDetailModal').classList.remove('active');}});
-$('#sidebarToggle').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
+$('#sidebarToggle').addEventListener('click',()=>{$('#sidebar').classList.toggle('open');$('#sidebarOverlay').classList.toggle('active');});
+// Mobile hamburger
+const mobileBtn=$('#mobileMenuBtn');
+const sidebarOv=$('#sidebarOverlay');
+if(mobileBtn)mobileBtn.addEventListener('click',()=>{$('#sidebar').classList.add('open');sidebarOv.classList.add('active');});
+if(sidebarOv)sidebarOv.addEventListener('click',()=>{$('#sidebar').classList.remove('open');sidebarOv.classList.remove('active');});
 
 // Global API
 window.APP={
