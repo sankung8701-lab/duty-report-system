@@ -1,0 +1,8 @@
+# PDF source files
+*.pdf
+
+# Page images from PDF extraction
+page_*.png
+
+# Inject data script (contains hardcoded data)
+inject_data.js

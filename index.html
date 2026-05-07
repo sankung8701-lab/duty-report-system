@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ระบบรายงานเวรพระราชวังไกลกังวล สำหรับหน่วยทหาร - รายงานและส่งข้อมูลผ่าน Telegram">
+    <title>ระบบรายงานเวรพระราชวังไกลกังวล</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo-icon">⚔️</div>
+                <div class="logo-text">
+                    <h1>รายงานเวร</h1>
+                    <p>พระราชวังไกลกังวล</p>
+                </div>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">แดชบอร์ด</span>
+            </a>
+            <a href="#" class="nav-item" data-page="report" id="nav-report">
+                <span class="nav-icon">📝</span>
+                <span class="nav-label">รายงานเวร</span>
+            </a>
+            <a href="#" class="nav-item" data-page="personnel" id="nav-personnel">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">กำลังพล</span>
+            </a>
+            <a href="#" class="nav-item" data-page="history" id="nav-history">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">ประวัติรายงาน</span>
+            </a>
+            <a href="#" class="nav-item" data-page="blood" id="nav-blood">
+                <span class="nav-icon">🩸</span>
+                <span class="nav-label">บริจาคโลหิต</span>
+            </a>
+            <a href="#" class="nav-item" data-page="telegram" id="nav-telegram">
+                <span class="nav-icon">📨</span>
+                <span class="nav-label">ตั้งค่า Telegram</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="datetime-display" id="datetimeDisplay"></div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Dashboard Page -->
+        <section class="page active" id="page-dashboard">
+            <div class="page-header">
+                <h2>📊 แดชบอร์ดภาพรวม</h2>
+                <div class="header-actions">
+                    <span class="status-badge online" id="telegramStatus">🔴 Telegram ยังไม่เชื่อมต่อ</span>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card gradient-1">
+                    <div class="stat-icon">🎖️</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statTotalPersonnel">0</span>
+                        <span class="stat-label">กำลังพลทั้งหมด</span>
+                    </div>
+                </div>
+                <div class="stat-card gradient-2">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statTodayReports">0</span>
+                        <span class="stat-label">รายงานวันนี้</span>
+                    </div>
+                </div>
+                <div class="stat-card gradient-3">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statOnDuty">0</span>
+                        <span class="stat-label">ปฏิบัติเวรอยู่</span>
+                    </div>
+                </div>
+                <div class="stat-card gradient-4">
+                    <div class="stat-icon">📨</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statTelegramSent">0</span>
+                        <span class="stat-label">ส่ง Telegram แล้ว</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🕐 ตารางเวรวันนี้</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="duty-schedule" id="dutySchedule">
+                            <p class="empty-state">ยังไม่มีข้อมูลตารางเวร</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📋 รายงานล่าสุด</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="recent-reports" id="recentReports">
+                            <p class="empty-state">ยังไม่มีรายงาน</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Report Page -->
+        <section class="page" id="page-report">
+            <div class="page-header">
+                <h2>📝 รายงานตรวจชายหาดพระราชวังไกลกังวล</h2>
+            </div>
+            <div class="report-form-container">
+                <form class="report-form" id="reportForm">
+                    <div class="form-section">
+                        <h3 class="section-title">📌 ข้อมูลการตรวจ</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reportDate">วันที่ตรวจ</label>
+                                <input type="date" id="reportDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reportTime">เวลาที่เข้าตรวจ</label>
+                                <input type="time" id="reportTime" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group" style="flex:1">
+                                <label for="reportInspector">ผู้ตรวจ</label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="reportInspector" required placeholder="พิมพ์ชื่อผู้ตรวจ..." autocomplete="off">
+                                    <div class="autocomplete-list" id="inspectorSuggestions"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">🌊 สภาพชายหาด</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="beachArea">พื้นที่ชายหาด</label>
+                                <select id="beachArea" required>
+                                    <option value="">-- เลือกหาด --</option>
+                                    <option value="หาดเหนือ">🏖️ หาดเหนือ</option>
+                                    <option value="หาดใต้">🏖️ หาดใต้</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="seaDistance">ระยะน้ำทะเลห่างจากฝั่ง (เมตร)</label>
+                                <input type="number" id="seaDistance" min="0" step="1" placeholder="เช่น 50" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">👥 บุคคล / เรือ ในพื้นที่</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hasTourists">มีนักท่องเที่ยวหรือไม่</label>
+                                <select id="hasTourists">
+                                    <option value="ไม่มี">❌ ไม่มี</option>
+                                    <option value="มี">✅ มี</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="touristCountGroup" style="display:none">
+                                <label for="touristCount">จำนวนนักท่องเที่ยว (คน)</label>
+                                <input type="number" id="touristCount" min="0" placeholder="จำนวนคน">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hasFishermen">มีคนหาปลาหรือไม่</label>
+                                <select id="hasFishermen">
+                                    <option value="ไม่มี">❌ ไม่มี</option>
+                                    <option value="มี">✅ มี</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="fishermenCountGroup" style="display:none">
+                                <label for="fishermenCount">จำนวนคนหาปลา (คน)</label>
+                                <input type="number" id="fishermenCount" min="0" placeholder="จำนวนคน">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hasFishingBoat">มีเรือประมงในเขตพระราชฐานหรือไม่</label>
+                                <select id="hasFishingBoat">
+                                    <option value="ไม่มี">❌ ไม่มี</option>
+                                    <option value="มี">✅ มี</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="boatDistanceGroup" style="display:none">
+                                <label for="boatDistance">ระยะห่างเรือจากเขต (เมตร)</label>
+                                <input type="number" id="boatDistance" min="0" placeholder="ระยะเมตร">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">📊 สถานะ / สภาพอากาศ</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reportStatus">สถานะ</label>
+                                <select id="reportStatus" required>
+                                    <option value="ปกติ">✅ ปกติ</option>
+                                    <option value="มีเหตุการณ์">⚠️ มีเหตุการณ์</option>
+                                    <option value="ฉุกเฉิน">🚨 ฉุกเฉิน</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="weatherCondition">สภาพอากาศ</label>
+                                <select id="weatherCondition">
+                                    <option value="แจ่มใส">☀️ แจ่มใส</option>
+                                    <option value="มีเมฆบ้าง">⛅ มีเมฆบ้าง</option>
+                                    <option value="มีเมฆมาก">☁️ มีเมฆมาก</option>
+                                    <option value="ฝนตก">🌧️ ฝนตก</option>
+                                    <option value="ฝนตกหนัก">⛈️ ฝนตกหนัก</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportNote">หมายเหตุ / เหตุการณ์สำคัญ</label>
+                            <textarea id="reportNote" rows="3" placeholder="บันทึกรายละเอียดเหตุการณ์..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitReport">
+                            <span>💾</span> บันทึกรายงาน
+                        </button>
+                        <button type="button" class="btn btn-success" id="btnSubmitAndSend">
+                            <span>📨</span> บันทึก + ส่ง Telegram
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <span>🔄</span> ล้างฟอร์ม
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Personnel Page -->
+        <section class="page" id="page-personnel">
+            <div class="page-header">
+                <h2>👤 จัดการกำลังพล</h2>
+                <div class="header-actions">
+                    <input type="text" id="personnelSearch" class="filter-input" placeholder="🔍 ค้นหาชื่อ...">
+                    <select id="personnelCompanyFilter" class="filter-input">
+                        <option value="">ทุกกองร้อย</option>
+                        <option value="บก.พัน">บก.พัน</option>
+                        <option value="ร้อย.สสก.บก.">ร้อย.สสก.บก.</option>
+                        <option value="ร้อย.สสช.">ร้อย.สสช.</option>
+                        <option value="ร้อย.อวบ.1">ร้อย.อวบ.1</option>
+                        <option value="ร้อย.อวบ.2">ร้อย.อวบ.2</option>
+                        <option value="ร้อย.อวบ.3">ร้อย.อวบ.3</option>
+                    </select>
+                    <select id="personnelStatusFilter" class="filter-input">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="พร้อมปฏิบัติ">✅ พร้อมปฏิบัติ</option>
+                        <option value="ลา">🔵 ลา</option>
+                        <option value="ป่วย">🟡 ป่วย</option>
+                        <option value="ราชการอื่น">🟠 ราชการอื่น</option>
+                    </select>
+                    <button class="btn btn-primary" id="btnAddPersonnel"><span>➕</span> เพิ่มกำลังพล</button>
+                    <button class="btn btn-success" id="btnExportPersonnel"><span>📥</span> ส่งออก</button>
+                    <button class="btn btn-secondary" id="btnBackupData"><span>💾</span> สำรองข้อมูล</button>
+                    <button class="btn btn-warning" id="btnRestoreData"><span>📂</span> นำเข้าข้อมูล</button>
+                    <input type="file" id="restoreFileInput" accept=".json" style="display:none">
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table" id="personnelTable">
+                            <thead>
+                                <tr>
+                                    <th>ลำดับ</th>
+                                    <th>ยศ-ชื่อ-สกุล</th>
+                                    <th>กองร้อย</th>
+                                    <th>ตำแหน่ง</th>
+                                    <th>เบอร์โทร</th>
+                                    <th>สถานะ</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="personnelTableBody">
+                                <tr><td colspan="7" class="empty-state">ยังไม่มีข้อมูลกำลังพล</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Page -->
+        <section class="page" id="page-history">
+            <div class="page-header">
+                <h2>📋 ประวัติรายงาน</h2>
+                <div class="header-actions">
+                    <input type="date" id="historyFilterDate" class="filter-input">
+                    <button class="btn btn-primary" id="btnExportHistory">
+                        <span>📥</span> ส่งออก
+                    </button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table" id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>วันที่</th>
+                                    <th>เวลา</th>
+                                    <th>จุดรักษาการณ์</th>
+                                    <th>ผู้ตรวจ</th>
+                                    <th>สถานะ</th>
+                                    <th>Telegram</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr><td colspan="7" class="empty-state">ยังไม่มีประวัติรายงาน</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blood Donation Page -->
+        <section class="page" id="page-blood">
+            <div class="page-header">
+                <h2>🩸 บันทึกการบริจาคโลหิต</h2>
+                <div class="header-actions">
+                    <select id="bloodYear" class="filter-input"></select>
+                    <button class="btn btn-primary" id="btnAddBlood">➕ บันทึกการบริจาค</button>
+                    <button class="btn btn-success" id="btnExportBlood">📥 ส่งออก</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="blood-period-labels">
+                        <span class="period-label">ห้วง 1: ม.ค.-มี.ค.</span>
+                        <span class="period-label">ห้วง 2: เม.ย.-มิ.ย.</span>
+                        <span class="period-label">ห้วง 3: ก.ค.-ก.ย.</span>
+                        <span class="period-label">ห้วง 4: ต.ค.-ธ.ค.</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="bloodTable">
+                            <thead>
+                                <tr>
+                                    <th>ลำดับ</th>
+                                    <th>ยศ-ชื่อ-สกุล</th>
+                                    <th>ห้วง 1<br><small>ม.ค.-มี.ค.</small></th>
+                                    <th>ห้วง 2<br><small>เม.ย.-มิ.ย.</small></th>
+                                    <th>ห้วง 3<br><small>ก.ค.-ก.ย.</small></th>
+                                    <th>ห้วง 4<br><small>ต.ค.-ธ.ค.</small></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bloodTableBody">
+                                <tr><td colspan="6" class="empty-state">กรุณาเพิ่มกำลังพลก่อน</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Telegram Settings Page -->
+        <section class="page" id="page-telegram">
+            <div class="page-header">
+                <h2>📨 ตั้งค่า Telegram Bot</h2>
+            </div>
+            <div class="telegram-setup">
+                <div class="card">
+                    <div class="card-header"><h3>🔑 การตั้งค่า Bot</h3></div>
+                    <div class="card-body">
+                        <div class="setup-instructions">
+                            <div class="instruction-step">
+                                <span class="step-num">1</span>
+                                <p>ค้นหา <strong>@BotFather</strong> บน Telegram แล้วสร้าง Bot ใหม่</p>
+                            </div>
+                            <div class="instruction-step">
+                                <span class="step-num">2</span>
+                                <p>คัดลอก <strong>Bot Token</strong> มาวางด้านล่าง</p>
+                            </div>
+                            <div class="instruction-step">
+                                <span class="step-num">3</span>
+                                <p>เพิ่ม Bot เข้ากลุ่มแล้วนำ <strong>Chat ID</strong> มาวาง</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="telegramBotToken">Bot Token</label>
+                            <input type="text" id="telegramBotToken" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
+                        </div>
+                        <div class="form-group">
+                            <label for="telegramChatId">Chat ID (กลุ่มหรือส่วนตัว)</label>
+                            <input type="text" id="telegramChatId" placeholder="-1001234567890">
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" id="btnSaveTelegram">
+                                <span>💾</span> บันทึกการตั้งค่า
+                            </button>
+                            <button class="btn btn-success" id="btnTestTelegram">
+                                <span>🧪</span> ทดสอบส่งข้อความ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h3>📤 ส่งข้อความด่วน</h3></div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="quickMessage">ข้อความ</label>
+                            <textarea id="quickMessage" rows="3" placeholder="พิมพ์ข้อความที่ต้องการส่งด่วน..."></textarea>
+                        </div>
+                        <button class="btn btn-success" id="btnSendQuickMsg">
+                            <span>📨</span> ส่งข้อความด่วน
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Adding/Editing Personnel -->
+    <div class="modal-overlay" id="personnelModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">➕ เพิ่มกำลังพล</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="personnelForm">
+                    <input type="hidden" id="personnelId">
+                    <div class="form-group">
+                        <label for="personnelRank">ยศ</label>
+                        <select id="personnelRank" required>
+                            <option value="">-- เลือกยศ --</option>
+                            <option value="พล.อ.">พล.อ.</option>
+                            <option value="พล.ท.">พล.ท.</option>
+                            <option value="พล.ต.">พล.ต.</option>
+                            <option value="พ.อ.">พ.อ.</option>
+                            <option value="พ.ท.">พ.ท.</option>
+                            <option value="พ.ต.">พ.ต.</option>
+                            <option value="ร.อ.">ร.อ.</option>
+                            <option value="ร.ท.">ร.ท.</option>
+                            <option value="ร.ต.">ร.ต.</option>
+                            <option value="จ.ส.อ.">จ.ส.อ.</option>
+                            <option value="จ.ส.ท.">จ.ส.ท.</option>
+                            <option value="จ.ส.ต.">จ.ส.ต.</option>
+                            <option value="ส.อ.">ส.อ.</option>
+                            <option value="ส.ท.">ส.ท.</option>
+                            <option value="ส.ต.">ส.ต.</option>
+                            <option value="พลฯ">พลฯ</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="personnelFirstName">ชื่อ</label>
+                            <input type="text" id="personnelFirstName" required placeholder="ชื่อ">
+                        </div>
+                        <div class="form-group">
+                            <label for="personnelLastName">นามสกุล</label>
+                            <input type="text" id="personnelLastName" required placeholder="นามสกุล">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="personnelCompany">กองร้อย/ส่วน</label>
+                        <select id="personnelCompany">
+                            <option value="บก.พัน">บก.พัน</option>
+                            <option value="ร้อย.สสก.บก.">ร้อย.สสก.บก.</option>
+                            <option value="ร้อย.สสช.">ร้อย.สสช.</option>
+                            <option value="ร้อย.อวบ.1">ร้อย.อวบ.1</option>
+                            <option value="ร้อย.อวบ.2">ร้อย.อวบ.2</option>
+                            <option value="ร้อย.อวบ.3">ร้อย.อวบ.3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="personnelPosition">ตำแหน่ง</label>
+                        <input type="text" id="personnelPosition" placeholder="เช่น ผู้บังคับเวร, ยามรักษาการณ์">
+                    </div>
+                    <div class="form-group">
+                        <label for="personnelPhone">เบอร์โทรศัพท์</label>
+                        <input type="tel" id="personnelPhone" placeholder="08X-XXX-XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="personnelStatus">สถานะ</label>
+                        <select id="personnelStatus">
+                            <option value="พร้อมปฏิบัติ">✅ พร้อมปฏิบัติ</option>
+                            <option value="ลา">🔵 ลา</option>
+                            <option value="ป่วย">🟡 ป่วย</option>
+                            <option value="ราชการอื่น">🟠 ราชการอื่น</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+                        <button type="button" class="btn btn-secondary" id="btnCancelPersonnel">ยกเลิก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Detail Modal -->
+    <div class="modal-overlay" id="reportDetailModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3>📋 รายละเอียดรายงาน</h3>
+                <button class="modal-close" id="reportDetailClose">&times;</button>
+            </div>
+            <div class="modal-body" id="reportDetailContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="btnResendTelegram">📨 ส่ง Telegram อีกครั้ง</button>
+                <button class="btn btn-secondary" id="btnCloseDetail">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blood Donation Modal -->
+    <div class="modal-overlay" id="bloodModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="bloodModalTitle">🩸 บันทึกการบริจาคโลหิต</h3>
+                <button class="modal-close" id="bloodModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="bloodForm">
+                    <div class="form-group">
+                        <label for="bloodPersonnel">กำลังพล</label>
+                        <select id="bloodPersonnel" required></select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bloodPeriod">ห้วง</label>
+                            <select id="bloodPeriod" required>
+                                <option value="1">ห้วง 1 (ม.ค.-มี.ค.)</option>
+                                <option value="2">ห้วง 2 (เม.ย.-มิ.ย.)</option>
+                                <option value="3">ห้วง 3 (ก.ค.-ก.ย.)</option>
+                                <option value="4">ห้วง 4 (ต.ค.-ธ.ค.)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodDate">วันที่บริจาค</label>
+                            <input type="date" id="bloodDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bloodCanDonate">บริจาคได้หรือไม่</label>
+                        <select id="bloodCanDonate" required>
+                            <option value="ได้">✅ บริจาคได้</option>
+                            <option value="ไม่ได้">❌ บริจาคไม่ได้</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="bloodReasonGroup" style="display:none">
+                        <label for="bloodReason">สาเหตุที่บริจาคไม่ได้</label>
+                        <select id="bloodReason">
+                            <option value="น้ำหนักไม่ถึง">น้ำหนักไม่ถึง</option>
+                            <option value="ความดันผิดปกติ">ความดันผิดปกติ</option>
+                            <option value="ซีด/โลหิตจาง">ซีด/โลหิตจาง</option>
+                            <option value="เจ็บป่วย">เจ็บป่วย/ทานยา</option>
+                            <option value="เพิ่งบริจาค">ยังไม่ครบ 3 เดือน</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="bloodReasonOtherGroup" style="display:none">
+                        <label for="bloodReasonOther">ระบุสาเหตุ</label>
+                        <input type="text" id="bloodReasonOther" placeholder="ระบุสาเหตุ...">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+                        <button type="button" class="btn btn-secondary" id="btnCancelBlood">ยกเลิก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
